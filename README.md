@@ -7,15 +7,11 @@ It provides real-time scoring, AI-based insights, and predictive analysis throug
 
 ## 🚀 Live Demo
 
-🔗 (Add your Vercel link here after deployment)
+🔗 mental-health-resilience-system.vercel.app
 
 ---
 
-## 📸 Preview
 
-(Add screenshots here)
-
----
 
 ## ✨ Features
 
