@@ -1,87 +1,66 @@
-/**
- * App.js — Root component.
- * Handles: auth gating, tab routing, global providers.
- *
- * Architecture:
- *   AppProvider (context) → App → AuthPage | MainApp
- *   MainApp → Navbar + tab content
- */
-
 import React, { useState } from "react";
-import { AppProvider, useApp } from "./context/AppContext";
-import LoadingScreen from "./components/shared/LoadingScreen";
-import Toast from "./components/shared/Toast";
-import AuthPage from "./components/auth/AuthPage";
-import Navbar from "./components/shared/Navbar";
-import DashboardView from "./components/dashboard/DashboardView";
-import AIInsights from "./components/dashboard/AIInsights";
-import CompareView from "./components/compare/CompareView";
-import ReportsPanel from "./components/compare/ReportsPanel";
-import IndiaDashboard from "./components/india/IndiaDashboard";
-import { useTheme } from "./context/ThemeContext";
+import { AppProvider, useApp }       from "./context/AppContext";
+import { ThemeProvider }             from "./context/ThemeContext";
+import LoadingScreen                 from "./components/shared/LoadingScreen";
+import Toast                         from "./components/shared/Toast";
+import LandingPage                   from "./components/auth/LandingPage";
+import AuthPage                      from "./components/auth/AuthPage";
+import Navbar                        from "./components/shared/Navbar";
+import DashboardView                 from "./components/dashboard/DashboardView";
+import AIInsights                    from "./components/dashboard/AIInsights";
+import CompareView                   from "./components/compare/CompareView";
+import ReportsPanel                  from "./components/compare/ReportsPanel";
+import IndiaDashboard                from "./components/india/IndiaDashboard";
+import ScoreHistory                  from "./components/history/ScoreHistory";
+import Chatbot                       from "./components/chatbot/Chatbot";
 
-const ThemeToggle = () => {
-  const { dark, toggleTheme } = useTheme();
-
-  return (
-    <button onClick={toggleTheme} className="btn-primary">
-      {dark ? "🌙 Dark" : "☀️ Light"}
-    </button>
-  );
-};
-
-/* ─── Main authenticated app ──────────────────────────────────────── */
 function MainApp() {
   const [activeTab, setActiveTab] = useState("dashboard");
-
   const TAB_CONTENT = {
     dashboard: <DashboardView />,
     insights:  <AIInsights />,
     compare:   <CompareView />,
     reports:   <ReportsPanel />,
     india:     <IndiaDashboard />,
+    history:   <ScoreHistory />,
+    chatbot:   <Chatbot />,
   };
-
   return (
     <div className="min-h-screen">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* Page content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div key={activeTab} className="page-enter">
           {TAB_CONTENT[activeTab] || <DashboardView />}
         </div>
       </main>
-
-      {/* Footer */}
       <footer className="text-center py-8 text-xs text-slate-800 space-y-1 border-t border-slate-900 mt-8">
-        <p>
-          MH Resilience Pro v2.0 · Built with React + Tailwind CSS + Recharts
-        </p>
-        <p>
-          Based on WHO SDOH Framework · For educational use only ·
-          Not a clinical diagnostic tool
-        </p>
+        <p>MH Resilience Pro v3.0 · React + Tailwind + Recharts + FastAPI + Claude AI</p>
+        <p>Based on WHO SDOH Framework · For educational use only · Not a clinical tool</p>
       </footer>
     </div>
   );
 }
 
-/* ─── Auth gate ───────────────────────────────────────────────────── */
 function AppGate() {
   const { state } = useApp();
+  const [showAuth, setShowAuth] = useState(false);
 
-  if (state.isLoading) return <LoadingScreen />;
-  if (!state.isAuthenticated) return <AuthPage />;
-  return <MainApp />;
+  if (state.isLoading)        return <LoadingScreen />;
+  if (state.isAuthenticated)  return <MainApp />;
+
+  if (!showAuth) {
+    return <LandingPage onGetStarted={() => setShowAuth(true)} />;
+  }
+  return <AuthPage />;
 }
 
-/* ─── Root with providers ─────────────────────────────────────────── */
 export default function App() {
   return (
-    <AppProvider>
-      <AppGate />
-      <Toast />
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <AppGate />
+        <Toast />
+      </AppProvider>
+    </ThemeProvider>
   );
 }
